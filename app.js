@@ -8,9 +8,22 @@
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ6enhjc2hkZXRxcnV4cXV4cmJlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM4MjIyMDgsImV4cCI6MjA4OTM5ODIwOH0.5BjEQWW8n7k62Uw7_JhsmZlA9Anl-mKqFiWs2Wwlilc"
   );
 
+
   const params = new URLSearchParams(window.location.search);
   const scanCode = params.get("task") || "default";
 
+  // 2️⃣ Ensure bucket exists
+  async function ensureBucket(bucketName) {
+    const { data: buckets } = await supabaseClient.storage.listBuckets();
+    if (!buckets.some(b => b.name === bucketName)) {
+      console.log(`Creating missing bucket: ${bucketName}`);
+      await supabaseClient.storage.createBucket(bucketName, { public: true });
+    }
+  }
+
+  await ensureBucket("proofs");
+
+  // 3️⃣ Submit task function
   async function submitTask() {
     try {
       const name = document.getElementById("name").value.trim();
@@ -22,11 +35,11 @@
       const file = document.getElementById("proof").files[0];
 
       if (!name || !phone || !file) {
-        alert("Name, Phone, and Proof are required!");
+        alert("Name, Phone, and Proof image are required!");
         return;
       }
 
-      // 1️⃣ Get or create user
+      // 3a️⃣ Get or create user
       let { data: user, error: userError } = await supabaseClient
         .from("users")
         .select("*")
@@ -44,14 +57,15 @@
         user = newUser;
       }
 
-      // 2️⃣ Upload proof image
+      // 3b️⃣ Upload proof
       const filePath = `${user.id}/${Date.now()}_${file.name}`;
       const { error: uploadError } = await supabaseClient
-        .storage.from("proofs")
+        .storage
+        .from("proofs")
         .upload(filePath, file);
-      if (uploadError) throw uploadError;
+      if (uploadError) throw new Error("Upload failed: " + uploadError.message);
 
-      // 3️⃣ Save submission (10 points)
+      // 3c️⃣ Save submission (10 points per scan)
       const points = 10;
       const { error: submissionError } = await supabaseClient
         .from("submissions")
@@ -64,7 +78,7 @@
         }]);
       if (submissionError) throw submissionError;
 
-      // 4️⃣ Update user points
+      // 3d️⃣ Update user points
       const newPoints = (user.points || 0) + points;
       const { error: updateError } = await supabaseClient
         .from("users")
@@ -81,7 +95,7 @@
     }
   }
 
-  // Load leaderboard
+  // 4️⃣ Load leaderboard
   async function loadLeaderboard() {
     try {
       const { data: users } = await supabaseClient
@@ -112,9 +126,10 @@
     }
   }
 
-  // ✅ Attach submit event
+  // 5️⃣ Attach event listener
   const submitBtn = document.getElementById("submitBtn");
   if (submitBtn) submitBtn.addEventListener("click", submitTask);
 
+  // 6️⃣ Load leaderboard on page load
   loadLeaderboard();
 });
