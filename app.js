@@ -6,23 +6,25 @@
   const supabaseClient = createClient(
     "https://fzzxcshdetqruxquxrbe.supabase.co",
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ6enhjc2hkZXRxcnV4cXV4cmJlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM4MjIyMDgsImV4cCI6MjA4OTM5ODIwOH0.5BjEQWW8n7k62Uw7_JhsmZlA9Anl-mKqFiWs2Wwlilc"
-  
-);
+  );
 
   const params = new URLSearchParams(window.location.search);
-  const scanCode = params.get("task") || "default"; // every scan counts
+  const scanCode = params.get("task") || "default";
 
   async function submitTask() {
     try {
-      const name = document.getElementById("name").value;
-      const email = document.getElementById("email").value;
-      const phone = document.getElementById("phone").value;
-      const address = document.getElementById("address").value;
-      const place = document.getElementById("place").value;
-      const knowledge = document.getElementById("knowledge").value;
+      const name = document.getElementById("name").value.trim();
+      const email = document.getElementById("email").value.trim();
+      const phone = document.getElementById("phone").value.trim();
+      const address = document.getElementById("address").value.trim();
+      const place = document.getElementById("place").value.trim();
+      const knowledge = document.getElementById("knowledge").value.trim();
       const file = document.getElementById("proof").files[0];
 
-      if (!file) { alert("Upload proof image"); return; }
+      if (!name || !phone || !file) {
+        alert("Name, Phone, and Proof are required!");
+        return;
+      }
 
       // 1️⃣ Get or create user
       let { data: user, error: userError } = await supabaseClient
@@ -42,14 +44,14 @@
         user = newUser;
       }
 
-      // 2️⃣ Upload proof
+      // 2️⃣ Upload proof image
       const filePath = `${user.id}/${Date.now()}_${file.name}`;
       const { error: uploadError } = await supabaseClient
         .storage.from("proofs")
         .upload(filePath, file);
       if (uploadError) throw uploadError;
 
-      // 3️⃣ Save submission (10 points per scan)
+      // 3️⃣ Save submission (10 points)
       const points = 10;
       const { error: submissionError } = await supabaseClient
         .from("submissions")
@@ -73,9 +75,9 @@
       alert("🔥 Submission successful! +10 points!");
       loadLeaderboard();
 
-    } catch (error) {
-      console.error("ERROR:", error);
-      alert(error.message);
+    } catch (err) {
+      console.error("ERROR:", err);
+      alert(err.message);
     }
   }
 
@@ -110,6 +112,9 @@
     }
   }
 
-  document.getElementById("submitBtn").addEventListener("click", submitTask);
+  // ✅ Attach submit event
+  const submitBtn = document.getElementById("submitBtn");
+  if (submitBtn) submitBtn.addEventListener("click", submitTask);
+
   loadLeaderboard();
 });
