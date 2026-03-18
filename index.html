@@ -1,26 +1,30 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Zartour Action</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Zartour Experience</title>
+  <link rel="stylesheet" href="style.css">
+  <!-- Supabase JS -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
+  <h1>🌍 Zartour Experience</h1>
 
-<h2>🌍 Zartour Experience</h2>
+  <div id="form-container">
+    <input type="text" id="name" placeholder="Full Name"><br><br>
+    <input type="email" id="email" placeholder="Email"><br><br>
+    <input type="text" id="phone" placeholder="Phone Number"><br><br>
+    <input type="text" id="address" placeholder="Residential Address"><br><br>
+    <input type="text" id="place" placeholder="Place You Visited"><br><br>
+    <textarea id="knowledge" placeholder="What do you know about this place?"></textarea><br><br>
+    <input type="file" id="proof"><br><br>
+    <button id="submitBtn">Submit</button>
+  </div>
 
-<input type="text" id="name" placeholder="Full Name"><br><br>
-<input type="email" id="email" placeholder="Email"><br><br>
-<input type="text" id="phone" placeholder="Phone Number"><br><br>
-<input type="text" id="address" placeholder="Residential Address"><br><br>
+  <h2>🏆 Leaderboard</h2>
+  <div id="leaderboard"></div>
 
-<input type="text" id="place" placeholder="Place You Visited"><br><br>
-
-<textarea id="knowledge" placeholder="What do you know about this place?"></textarea><br><br>
-
-<input type="file" id="proof"><br><br>
-
-<button onclick="submitTask()">Submit</button>
-  
   <script src="app.js"></script>
-
 </body>
-</html>
+    </html>
