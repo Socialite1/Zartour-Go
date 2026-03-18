@@ -89,7 +89,7 @@ async function submitTask() {
     alert("🔥 Submission successful! Points awarded!");
 
   } catch (error) {
-    console.error("ERROR:", error);
-    alert("Something went wrong");
+    console.error("FULL ERROR:", error);
+alert(error.message);
   }
       }
