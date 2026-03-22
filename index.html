@@ -1,32 +1,106 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Zartour Form</title>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <title>Zartour App</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+
   <style>
-    body { font-family: Arial; background:#0f172a; color:white; padding:20px; }
-    input, textarea, button { width:100%; padding:10px; margin:5px 0; border-radius:5px; }
-    button { background:#4ade80; color:#0f172a; font-weight:bold; cursor:pointer; }
-    button:hover { background:#22c55e; }
+    body {
+      font-family: Arial;
+      background: #0f172a;
+      color: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .box {
+      background: #1e293b;
+      padding: 30px;
+      border-radius: 12px;
+      width: 300px;
+    }
+
+    input {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 6px;
+      border: none;
+    }
+
+    button {
+      width: 100%;
+      padding: 10px;
+      background: orange;
+      border: none;
+      border-radius: 6px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .switch {
+      margin-top: 10px;
+      text-align: center;
+      cursor: pointer;
+      color: #94a3b8;
+    }
   </style>
 </head>
+
 <body>
 
-<h1>🌍 Zartour Experience</h1>
+<div class="box">
+  <h2 id="title">Login</h2>
 
-<div id="form-container">
-  <input type="text" id="name" placeholder="Full Name"><br>
-  <input type="email" id="email" placeholder="Email"><br>
-  <input type="text" id="phone" placeholder="Phone Number"><br>
-  <input type="text" id="address" placeholder="Residential Address"><br>
-  <input type="text" id="place" placeholder="Place You Visited"><br>
-  <textarea id="knowledge" placeholder="What do you know about this place?"></textarea><br>
-  <input type="file" id="proof"><br>
-  <button id="submitBtn">Submit</button>
+  <input type="email" id="email" placeholder="Email">
+  <input type="password" id="password" placeholder="Password">
+
+  <button onclick="submitAuth()">Continue</button>
+
+  <div class="switch" onclick="toggleMode()">
+    Switch to Signup
+  </div>
 </div>
 
-<script src="form.js"></script>
+<script>
+const SUPABASE_URL = "YOUR_URL";
+const SUPABASE_KEY = "YOUR_KEY";
+
+const client = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+let isLogin = true;
+
+function toggleMode() {
+  isLogin = !isLogin;
+  document.getElementById("title").innerText = isLogin ? "Login" : "Signup";
+}
+
+async function submitAuth() {
+  const email = document.getElementById("email").value;
+  const password = document.getElementById("password").value;
+
+  if (!email || !password) {
+    alert("Fill all fields");
+    return;
+  }
+
+  let res;
+
+  if (isLogin) {
+    res = await client.auth.signInWithPassword({ email, password });
+  } else {
+    res = await client.auth.signUp({ email, password });
+  }
+
+  if (res.error) {
+    alert(res.error.message);
+  } else {
+    window.location.href = "dashboard.html";
+  }
+}
+</script>
+
 </body>
 </html>
